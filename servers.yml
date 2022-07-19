@@ -58,6 +58,7 @@ Resources:
       SecurityGroups:
       - Ref: WebServerSecGroup
       InstanceType: t3.medium
+      IamInstanceProfile: !Ref RootInstanceProfile
       BlockDeviceMappings:
       - DeviceName: "/dev/sdk"
         Ebs:
@@ -159,7 +160,6 @@ Resources:
       Path: "/"
       Roles: 
         - Ref: "RootRole"
-
 
 
 Outputs: 

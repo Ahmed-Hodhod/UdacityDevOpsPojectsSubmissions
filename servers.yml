@@ -36,7 +36,7 @@ Resources:
         FromPort: 80
         ToPort: 80
         CidrIp: 0.0.0.0/0
- 
+      
       SecurityGroupEgress:
       - IpProtocol: tcp
         FromPort: 0
@@ -124,13 +124,50 @@ Resources:
         Fn::ImportValue:
           Fn::Sub: "${EnvironmentName}-VPCID"
 
+# IAM ROLE 
+
+  RootRole: 
+    Type: "AWS::IAM::Role"
+    Properties: 
+      AssumeRolePolicyDocument: 
+        Version: "2012-10-17"
+        Statement: 
+          - 
+            Effect: "Allow"
+            Principal: 
+              Service: 
+                - "ec2.amazonaws.com"
+            Action: 
+              - "sts:AssumeRole"
+      Path: "/"
+
+  RolePolicies: 
+    Type: "AWS::IAM::Policy"
+    Properties: 
+      PolicyName: "s3fulladmin"
+      PolicyDocument: 
+        Version: "2012-10-17"
+        Statement: 
+          - Effect: "Allow"
+            Action: "*"
+            Resource: "arn:aws:s3:::webapp-files"
+      Roles: 
+        - Ref: "RootRole"
+  RootInstanceProfile: 
+    Type: "AWS::IAM::InstanceProfile"
+    Properties: 
+      Path: "/"
+      Roles: 
+        - Ref: "RootRole"
+
+
 
 Outputs: 
+  WebAppLB: 
+      Description: A reference to the created Loadbalancer
+      Value: !Join [ "", [ "http://",  !GetAtt WebAppLB.DNSName ]]
+      Export:
+        Name: !Sub ${EnvironmentName}-LBDNS
 
-    WebAppLB: 
-        Description: A reference to the created Loadbalancer
-        Value: !Join [ "", [ "http://",  !GetAtt WebAppLB.DNSName ]]
-        Export:
-          Name: !Sub ${EnvironmentName}-LBDNS
 
 
